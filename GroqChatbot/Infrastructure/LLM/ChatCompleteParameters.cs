@@ -1,12 +1,12 @@
-﻿namespace GroqChatbot.Infrastructure.Groq;
+﻿namespace GroqChatbot.Infrastructure.LLM;
 
-public class GroqApiClientConfiguration
+public class ChatCompleteParameters
 {
     public string Model { get; set; } = "llama3-70b-8192";
 
     public double Temperature { get; set; } = 0.5;
 
-    public int MaxTokens { get; set; } = 4096;
+    public int MaxTokens { get; set; } = 200;
 
     public int TopP { get; set; } = 1;
 

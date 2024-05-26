@@ -17,12 +17,13 @@ connection.on("ChatCompletionChunk", function (user, chunk) {
 
         document.getElementById("messages").appendChild(messageElement);
     }
-    
+
     messageElement.innerHTML += chunk;
 });
 
 connection.on("ChatCompletionFinish", function () {
     messageElement = null;
+    document.getElementById("message").focus();
 });
 
 connection.start().then(function () {
@@ -32,13 +33,15 @@ connection.start().then(function () {
 });
 
 document.getElementById("submit").addEventListener("click", function (event) {
-    var role = document.getElementById("role").value;
-    var message = document.getElementById("message").value;
+    var messageElement = document.getElementById("message");
+    var message = messageElement.value;
 
     // Invio il messaggio all'hub /chat.
-    connection.invoke("ChatCompletion", role, message).catch(function (err) {
+    connection.invoke("ChatCompletion", message).catch(function (err) {
         return console.error(err.toString());
     });
+
+    messageElement.value = "";
 
     event.preventDefault();
 });

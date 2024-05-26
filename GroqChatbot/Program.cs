@@ -1,5 +1,6 @@
 using GroqChatbot.Hubs;
-using GroqChatbot.Infrastructure.Groq;
+using GroqChatbot.Infrastructure.LLM;
+using GroqChatbot.Infrastructure.LLM.Groq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,10 +9,16 @@ builder.Services.AddRazorPages();
 builder.Services.AddSignalR();
 builder.Services.AddMemoryCache();
 
-builder.Services.AddSingleton<IGroqApiClient>(_ =>
+builder.Services.AddSingleton<IChatClient>(_ =>
 {
     var apiKey = builder.Configuration.GetValue<string>("GroqApiKey") ?? throw new Exception("Missing GroqApiKey");
-    return new GroqApiClient(apiKey);
+    return new GroqClient(apiKey);
+});
+
+builder.Services.AddSingleton<ChatHistory>(s =>
+{
+    var client = s.GetRequiredService<IChatClient>();
+    return new ChatHistory(client);
 });
 
 var app = builder.Build();

@@ -1,29 +1,23 @@
-﻿using GroqChatbot.Infrastructure.Groq;
+﻿using GroqChatbot.Infrastructure.LLM;
 using Microsoft.AspNetCore.SignalR;
 using System.Text.Json.Nodes;
 
 namespace GroqChatbot.Hubs;
 
-public class ChatHub(IGroqApiClient groqApiClient) : Hub
+public class ChatHub(ChatHistory chatHistory) : Hub
 {
     const string assistant = "assistant";
 
-    static readonly Message _system = new Message("You are a chatbot capable of anything and everything.", "system");
+    static readonly Message _system = new Message("Sei un chatbot capace di tutto e di più.", "system");
+    static readonly ChatCompleteParameters _parameters = new();
 
-    readonly IGroqApiClient _groqApiClient = groqApiClient;
+    readonly ChatHistory _chatHistory = chatHistory;
 
-    public async Task ChatCompletion(string role, string message)
+    public async Task ChatCompletion(string message)
     {
-        List<Message> messages =
-        [
-            _system,
-            new(message),
-        ];
-
-        await foreach (JsonObject? chunk in _groqApiClient.CreateChatCompletionStreamAsync(messages))
+        await foreach (var chunk in _chatHistory.ChatComplete(message, _parameters))
         {
-            string delta = chunk?["choices"]?[0]?["delta"]?["content"]?.ToString() ?? string.Empty;
-            await Clients.Caller.SendAsync("ChatCompletionChunk", assistant, delta);
+            await Clients.Caller.SendAsync("ChatCompletionChunk", assistant, chunk);
         }
 
         await Clients.Caller.SendAsync("ChatCompletionFinish");

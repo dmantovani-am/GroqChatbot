@@ -3,34 +3,15 @@ using System.Text.Json;
 using System.Text;
 using System.Net.Http.Headers;
 
-namespace GroqChatbot.Infrastructure.Groq;
+namespace GroqChatbot.Infrastructure.LLM.Groq;
 
-public class GroqApiClient : IGroqApiClient
+public class GroqClient : IChatClient
 {
     private readonly HttpClient client = new();
-    private readonly GroqApiClientConfiguration _configuration;
 
-    public GroqApiClient(string apiKey, GroqApiClientConfiguration? configuration = null)
+    public GroqClient(string apiKey)
     {
         client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-        _configuration = configuration ?? new GroqApiClientConfiguration();
-    }
-
-    async Task<JsonObject?> CreateChatCompletionInternalAsync(JsonObject request)
-    {
-        // Commented out until stabilized on Groq
-        // the API is still not accepting the request payload in its documented format, even after following the JSON mode instructions.
-        // request.Add("response_format", new JsonObject(new KeyValuePair<string, JsonNode?>("type", "json_object")));
-
-        StringContent httpContent = new(request.ToJsonString(), Encoding.UTF8, MediaTypeHeaderValue.Parse("application/json"));
-
-        HttpResponseMessage response = await client.PostAsync("https://api.groq.com/openai/v1/chat/completions", httpContent);
-        response.EnsureSuccessStatusCode();
-
-        string responseString = await response.Content.ReadAsStringAsync();
-        JsonObject? responseJson = JsonSerializer.Deserialize<JsonObject>(responseString);
-
-        return responseJson;
     }
 
     async IAsyncEnumerable<JsonObject?> CreateChatCompletionStreamInternalAsync(JsonObject request)
@@ -59,7 +40,7 @@ public class GroqApiClient : IGroqApiClient
         }
     }
 
-    public async IAsyncEnumerable<JsonObject?> CreateChatCompletionStreamAsync(List<Message> messages)
+    public async IAsyncEnumerable<JsonObject?> ChatComplete(IEnumerable<Message> messages, ChatCompleteParameters parameters)
     {
         JsonArray msgs = new();
         foreach (var message in messages)
@@ -73,11 +54,11 @@ public class GroqApiClient : IGroqApiClient
 
         JsonObject request = new()
         {
-            ["model"] = _configuration.Model,
-            ["temperature"] = _configuration.Temperature,
-            ["max_tokens"] = _configuration.MaxTokens,
-            ["top_p"] = _configuration.TopP,
-            ["stop"] = _configuration.Stop,
+            ["model"] = parameters.Model,
+            ["temperature"] = parameters.Temperature,
+            ["max_tokens"] = parameters.MaxTokens,
+            ["top_p"] = parameters.TopP,
+            ["stop"] = parameters.Stop,
             ["messages"] = msgs,
         };
 
