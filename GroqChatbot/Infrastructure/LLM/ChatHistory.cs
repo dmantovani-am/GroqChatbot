@@ -33,4 +33,9 @@ public class ChatHistory
 
         _history.Add(new(content.ToString(), "assistant"));
     }
+
+    public void Clear()
+    {
+        _history.Clear();
+    }
 }

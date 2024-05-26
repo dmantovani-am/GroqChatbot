@@ -36,12 +36,26 @@ document.getElementById("submit").addEventListener("click", function (event) {
     var messageElement = document.getElementById("message");
     var message = messageElement.value;
 
+    var model = document.getElementById("model").value;
+    var temperature = parseFloat(document.getElementById("temperature").value);
+    var maxTokens = parseInt(document.getElementById("maxTokens").value, 10);
+
     // Invio il messaggio all'hub /chat.
-    connection.invoke("ChatCompletion", message).catch(function (err) {
+    connection.invoke("ChatCompletion", message, model, temperature, maxTokens).catch(function (err) {
         return console.error(err.toString());
     });
 
     messageElement.value = "";
+
+    event.preventDefault();
+});
+
+document.getElementById("clear").addEventListener("click", function (event) {
+    connection.invoke("Clear").catch(function (err) {
+        return console.error(err.toString());
+    });
+
+    document.getElementById("messages").innerHTML = "";
 
     event.preventDefault();
 });

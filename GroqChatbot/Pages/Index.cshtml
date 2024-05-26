@@ -4,20 +4,44 @@
     ViewData["Title"] = "Groq Chatbot";
 }
 
-<form onsubmit="void(0)">
+<form>
     <div class="container">
         <div class="row p-1">
-            <div class="col-1 text-uppercase">Role</div>
-            <div class="col-5"><input type="text" id="role" class="form-control" readonly value="user" /></div>
+            <div class="col-2 text-uppercase">Model</div>
+            <div class="col-5">
+                <select id="model" class="form-select">
+                    <option value="llama3-70b-8192">Llama3-70b-8192</option>
+                    <option value="llama3-8b-8192">Llama3-8b-8192</option>
+                    <option value="mixtral-8x7b-32768">Mixstra-8x7b-32768</option>
+                    <option value="gemma-7b-it">Gemma-7b-it</option>
+                </select>
+            </div>
         </div>
         <div class="row p-1">
-            <div class="col-1 text-uppercase">Message</div>
+            <div class="col-2 text-uppercase">Temperature</div>
+            <div class="col-5">
+                <input type="number" class="form-control" id="temperature" min="0" max="1" step="0.01" value="0.5" />
+            </div>
+        </div>
+        <div class="row p-1">
+            <div class="col-2 text-uppercase">Max Tokens</div>
+            <div class="col-5">
+                <input type="number" class="form-control" id="maxTokens" min="100" step="50" value="100" />
+            </div>
+        </div>
+@*         <div class="row p-1">
+            <div class="col-2 text-uppercase">Role</div>
+            <div class="col-4"><input type="text" id="role" class="form-control" readonly value="user" /></div>
+        </div> *@
+        <div class="row p-1">
+            <div class="col-2 text-uppercase">Message</div>
             <div class="col-5">
                 <input type="text" class="w-100 form-control" id="message" value="Ciao!" />
             </div>
         </div>
         <div class="row p-1">
-            <div class="col-6 text-end">
+            <div class="col-5 text-end">
+                <button id="clear" class="btn btn-danger text-uppercase">Clear</button>
                 <button type="submit" id="submit" class="btn btn-primary text-uppercase">Submit</button>
             </div>
         </div>
@@ -30,5 +54,5 @@
 </form>
 
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
-<script src="~/js/chat.js"></script>
+<script src="~/js/chat.js" asp-append-version="true"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>

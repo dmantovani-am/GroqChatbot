@@ -13,13 +13,22 @@ public class ChatHub(ChatHistory chatHistory) : Hub
 
     readonly ChatHistory _chatHistory = chatHistory;
 
-    public async Task ChatCompletion(string message)
+    public async Task ChatCompletion(string message, string model, double temperature, int maxTokens)
     {
+        _parameters.Model = model;
+        _parameters.Temperature = temperature;
+        _parameters.MaxTokens = maxTokens;
+
         await foreach (var chunk in _chatHistory.ChatComplete(message, _parameters))
         {
             await Clients.Caller.SendAsync("ChatCompletionChunk", assistant, chunk);
         }
 
         await Clients.Caller.SendAsync("ChatCompletionFinish");
+    }
+
+    public void Clear()
+    {
+        _chatHistory.Clear();
     }
 }
