@@ -1,6 +1,7 @@
 using GroqChatbot.Hubs;
 using GroqChatbot.Infrastructure.LLM;
 using GroqChatbot.Infrastructure.LLM.Groq;
+using System.Collections.Concurrent;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,11 +16,7 @@ builder.Services.AddSingleton<IChatClient>(_ =>
     return new GroqClient(apiKey);
 });
 
-builder.Services.AddSingleton<ChatHistory>(s =>
-{
-    var client = s.GetRequiredService<IChatClient>();
-    return new ChatHistory(client);
-});
+builder.Services.AddSingleton<IDictionary<string, ChatHistory>>(new ConcurrentDictionary<string, ChatHistory>());
 
 var app = builder.Build();
 
